@@ -1,0 +1,40 @@
+ pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/deepakchoursiya/Ai-Chat-Bot.git'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                // Correct command
+                sh 'sudo docker compose build'
+            }
+        }
+
+        stage('Run Containers') {
+            steps {
+                // If you want to rebuild before running, add --build here
+                sh 'sudo docker compose up --build -d'
+            }
+        }
+
+        stage('Test Services')
+        {
+            steps
+            {
+                sh 'curl -f http://localhost:3000 || exit 1'
+                sh 'curl -f http://localhost:8081 || exit 1'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'sudo docker compose down'
+        }
+    }
+}
